@@ -13,7 +13,6 @@ flowchart TD
         D[HTTP.log]
         E[CONN.log]
         F[SSL.log]
-        G[SSH.log]
     end
     
     B --> Z
