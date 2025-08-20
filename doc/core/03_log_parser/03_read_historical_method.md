@@ -201,6 +201,6 @@ print(f"Unikal domainlər: {parser.df['query'].nunique()}")
 
 ---
 
-**Növbəti:** [03. Log Parser Modulu - tail_new_entries method](core/03_log_parser/04_tail_new_entries_method.md)
+**Növbəti:** [03. Log Parser Modulu - tail_new_entries method](/doc/core/03_log_parser/04_tail_new_entries_method.md)
 
 Bu sənəd `read_historical` metodunun detallı işləmə prinsipini izah edir. Növbəti sənəddə real-time log oxuma metoduna keçəcəyik.
