@@ -3,7 +3,7 @@
 ## 🎯 Proyektin Məqsədi
 
 **Professional C2 Beacon Detector** - Çoxprotokollu şəbəkə trafikində gizlənmiş Command & Control (C2) əlaqələrini, DNS tunelləşdirmə, HTTP beaconing, SSL anomalyaları və şübhəli bağlantıları aşkar etmək üçün enterprise səviyyəli detektor sistemidir.
-
+**Proyektin son versiyasi app-extended-version folderindedir (app folderi simple olaraq qalir oyrenenler ucun kompleks olmasin deye burada metodlarin sayi azdir kod analizini rahatlasdirmaq ucun burada analizleri bitirdikden sonra esas folder'i ise sala ve ya analiz ede bilersiniz)**
 ## 🔍 Problem Aşkarlama
 
 Müasir kiberhücumlarda hücumçular C2 (Command & Control) əlaqələrini gizlətmək üçün müxtəlif üsullardan istifadə edirlər:
