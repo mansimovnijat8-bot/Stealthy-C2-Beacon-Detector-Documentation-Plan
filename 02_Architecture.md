@@ -205,6 +205,6 @@ class SplunkIntegration:
 
 ---
 
-**Növbəti**: [03. Log Parser Modulu - ZeekLogParser Class](core/03_log_parser/01_ZeekLogParser_Class.md)
+**Növbəti**: [03. Log Parser Modulu - ZeekLogParser Class](03_ZeekLogParser_Class.md)
 
 Bu sənəd proyektin ümumi arxivtekturasını və işləmə prinsipini izah edir. Növbəti sənəddə `ZeekLogParser` sinfinin detalına keçəcəyik.
