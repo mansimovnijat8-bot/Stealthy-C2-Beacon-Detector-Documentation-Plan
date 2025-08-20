@@ -207,6 +207,6 @@ additional_stats = {
 
 ---
 
-**Növbəti:** [03. Log Parser Modulu - validation methods](core/03_log_parser/06_validation_methods.md)
+**Növbəti:** [03. Log Parser Modulu - validation methods](/doc/core/03_log_parser/06_validation_methods.md)
 
 Bu sənəd `get_stats` metodunun detallı işləmə prinsipini izah edir. Növbəti sənəddə məlumat validasiya metodlarına keçəcəyik.
