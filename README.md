@@ -1,0 +1,1 @@
+# Stealthy-C2-Beacon-Detector-Documentation-Plan
