@@ -178,6 +178,6 @@ Klas aşağıdakı xətaları idarə edir:
 
 ---
 
-**Növbəti**: [03. Log Parser Modulu - init method](/02_init_method.md)
+**Növbəti**: [03. Log Parser Modulu - init method](/core/03_log_parser/02_init_method.md)
 
 Bu sənəd `ZeekLogParser` sinfinin ümumi strukturunu və funksionallığını izah edir. Növbəti sənəddə konstruktor metodunun detallarına keçəcəyik.
