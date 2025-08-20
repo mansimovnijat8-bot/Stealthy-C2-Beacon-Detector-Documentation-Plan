@@ -1,7 +1,7 @@
 {
   "zeek": {
     "log_dir": "/opt/zeek/logs/current",
-    "log_types": ["dns", "http", "conn", "ssl"],
+    "log_types": ["dns", "http", "conn", "ssl", "ssh"],
     "monitor_interfaces": ["eth0", "ens192", "eth1"]
   },
   "analysis": {
@@ -13,7 +13,8 @@
     "enable_conn_analysis": true,
     "enable_ssl_analysis": true,
     "correlation_enabled": true,
-    "cross_log_analysis": true
+    "cross_log_analysis": true,
+    "enable_ssh_analysis": true
   },
   "thresholds": {
     "dns_queries_per_minute": 150,
@@ -36,7 +37,10 @@
     "weak_ssl_count": 3,
     "self_signed_cert_count": 2,
     "suspicious_server_count": 3,
-    "ssl_beacon_interval_std": 4.0
+    "ssl_beacon_interval_std": 4.0,
+    "ssh_failed_attempts": 10,
+    "ssh_brute_force_window": 300,
+    "ssh_beacon_interval_std": 3.0
   },
   "alerting": {
     "log_file": "data/alerts/c2_alerts.json",
@@ -109,6 +113,15 @@
     "monitor_validation_status": true,
     "alert_on_self_signed": true
   },
+  "ssh_analysis": {
+    "suspicious_clients": [
+      "libssh", "paramiko", "jsch", "ssh2", "sshj",
+      "brute", "scan", "hydra", "medusa", "ncrack"
+    ],
+    "weak_auth_methods": ["password", "keyboard-interactive"],
+    "alert_on_external_access": true,
+    "alert_on_weak_auth": true
+  },    
   "system": {
     "max_memory_mb": 4096,
     "cpu_cores": 4,
