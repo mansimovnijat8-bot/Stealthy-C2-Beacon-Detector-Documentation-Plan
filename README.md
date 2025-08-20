@@ -2,8 +2,10 @@
 
 ## 🎯 Proyektin Məqsədi
 
-**Professional C2 Beacon Detector** - Çoxprotokollu şəbəkə trafikində gizlənmiş Command & Control (C2) əlaqələrini, DNS tunelləşdirmə, HTTP beaconing, SSL anomalyaları və şübhəli bağlantıları aşkar etmək üçün enterprise səviyyəli detektor sistemidir.
-**Proyektin son versiyasi app-extended-version folderindedir (app folderi simple olaraq qalir oyrenenler ucun kompleks olmasin deye burada metodlarin sayi azdir kod analizini rahatlasdirmaq ucun burada analizleri bitirdikden sonra esas folder'i ise sala ve ya analiz ede bilersiniz)**
+**Professional C2 Beacon Detector** - Çoxprotokollu şəbəkə trafikində gizlənmiş Command & Control (C2) əlaqələrini, DNS tunelləşdirmə, HTTP beaconing, SSL anomalyaları, SSH hücumları və şübhəli bağlantıları aşkar etmək üçün enterprise səviyyəli detektor sistemidir.
+
+**Qeyd**: Proyektin son versiyası `app-extended-version` qovluğundadır. `app` qovluğu sadə versiyadır və öyrənmək üçün nəzərdə tutulub. Analizləri başa çatdırdıqdan sonra əsas genişləndirilmiş versiyanı işə sala bilərsiniz.
+
 ## 🔍 Problem Aşkarlama
 
 Müasir kiberhücumlarda hücumçular C2 (Command & Control) əlaqələrini gizlətmək üçün müxtəlif üsullardan istifadə edirlər:
@@ -11,6 +13,7 @@ Müasir kiberhücumlarda hücumçular C2 (Command & Control) əlaqələrini gizl
 - **DNS Tunelləşdirmə**: Məlumatları DNS sorğularında gizlətmək (DNSCat2, Iodine)
 - **HTTP/HTTPS Beaconing**: Müntəzəm aralıqlarla C2 serverə əlaqə
 - **SSL/TLS Anomalyaları**: Özün-imzalanmış sertifikatlar, zəif şifrləmə
+- **SSH Hücumları**: Brute-force, şübhəli autentifikasiya, tunelləşdirmə
 - **Şübhəli Port Əlaqələri**: Standart olmayan portlarda C2 kommunikasiyası
 - **Legitim trafikə bənzətmə**: Normal şəbəkə fəaliyyətinə oxşamaq
 - **Çoxprotokollu C2**: Birdən çox protokolun eyni anda istifadəsi
@@ -19,10 +22,10 @@ Müasir kiberhücumlarda hücumçular C2 (Command & Control) əlaqələrini gizl
 
 Proyekt aşağıdakı üsullarla bu problemləri həll edir:
 
-1. **Real-time Multi-Protocol Monitorinq**: DNS, HTTP, SSL, Connection loglarının eyni anda analizi
+1. **Real-time Multi-Protocol Monitorinq**: DNS, HTTP, SSL, SSH, Connection loglarının eyni anda analizi
 2. **Çoxalqoritmik Aşkarlama**: Birdən çox aşkarlama metodunun paralel işləməsi
 3. **Statistik Analiz**: Normal fəaliyyət əsasında anomaliyaların tapılması
-4. **Machine Learning Əsaslı**: Davranış patternlərinin avtomatik öyrənilməsi
+4. **Behavioral Analysis**: Davranış patternlərinin avtomatik öyrənilməsi
 5. **Professional Loglama & Dashboard**: Real-time vizuallaşdırma və hesabatlanma
 
 ## 🏗️ Texnologiya Stəki
@@ -59,6 +62,15 @@ Proyekt aşağıdakı üsullarla bu problemləri həll edir:
 - ✅ Şübhəli server adları (IP-based SNI, suspicious patterns)
 - ✅ Zəif şifrə suite'ləri (RC4, DES, NULL, EXPORT)
 
+### SSH Əsaslı Aşkarlama
+- ✅ SSH brute-force hücumları (Çoxsaylı uğursuz giriş cəhdləri)
+- ✅ SSH Over Non-Standard Ports: 2222, 22222, 222222 kimi variant portlar
+- ✅ Reverse SSH Tunnel: Əks istiqamətli SSH tunellərin aşkarlanması.
+- ✅ Zəif autentifikasiya metodları (Password-only, keyboard-interactive)
+- ✅ Xarici SSH giriş cəhdləri (External access attempts)
+- ✅ SSH beaconing patternləri (Müntəzəm əlaqə intervalları)
+- ✅ Özün-imzalanmış SSH host açarları
+
 ### Connection Əsaslı Aşkarlama
 - ✅ Şübhəli port əlaqələri (Backdoor ports, non-standard)
 - ✅ Yüksək həcmdə bağlantılar (Volume anomalies)
@@ -82,22 +94,29 @@ Proyekt modul əsaslı və genişlənə bilən dizayn edilib:
 
 ```
 professional_c2_detector/
-├── src/
+├── app/                          # Sadə versiya (öyrənmə üçün)
 │   ├── core/
-│   │   ├── detector.py          # Əsas detektor və idarəetmə
-│   │   ├── log_parser.py        # Çoxprotokollu log parser
+│   │   ├── detector.py          # Əsas detektor
+│   │   ├── log_parser.py        # Əsas log parser
+│   │   └── dns_analyzer.py      # DNS analizatoru
+│   └── main.py                  # Əsas giriş nöqtəsi
+├── app-extended-version/        # Genişləndirilmiş versiya (tam funksional)
+│   ├── core/
+│   │   ├── detector.py          # Çoxprotokollu detektor
+│   │   ├── log_parser.py        # Dinamik log parser
 │   │   ├── dns_analyzer.py      # DNS analiz motoru
-│   │   ├── http_analyzer.py     # HTTP analiz motoru  
+│   │   ├── http_analyzer.py     # HTTP analiz motoru
 │   │   ├── conn_analyzer.py     # Connection analiz motoru
-│   │   └── ssl_analyzer.py      # SSL/TLS analiz motoru
+│   │   ├── ssl_analyzer.py      # SSL/TLS analiz motoru
+│   │   └── ssh_analyzer.py      # SSH analiz motoru
 │   ├── utils/
 │   │   ├── helpers.py           # Yardımçı funksiyalar
-│   │   └── logger.py            # Professional loglama sistemi
+│   │   └── logger.py            # Professional loglama
 │   ├── viz/
 │   │   └── dashboard.py         # Real-time vizual dashboard
 │   └── main.py                  # Əsas giriş nöqtəsi
 ├── config/
-│   └── config.json              # Əsas konfiqurasiya
+│   └── config.json              # Konfiqurasiya faylları
 ├── data/
 │   ├── alerts/                  # Alert logları
 │   └── logs/                    # Sistem logları
@@ -108,36 +127,33 @@ professional_c2_detector/
 
 ## ⚡ İşə Salma Seçimləri
 
-### Əsas İşə Salma Modları:
+### Sadə Versiya üçün (app/):
 ```bash
-# Normal real-time monitoring (bütün protokollar)
-python src/main.py
+cd app/
+python main.py --test
+python main.py --verbose
+```
 
-# Test modu (bir dəfəlik analiz)
+### Genişləndirilmiş Versiya üçün (app-extended-version/):
+```bash
+cd app-extended-version/
 python src/main.py --test
-
-# Verbose mod (detallı çıxış)
 python src/main.py --verbose
-
-# Xüsusi protokol ilə (DNS, HTTP, CONN, SSL)
 python src/main.py --protocol dns
-
-# Xüsusi konfiqurasiya faylı ilə
+python src/main.py --protocol ssh
 python src/main.py --config production.json
 ```
 
 ### Dashboard İşə Salma:
 ```bash
-# Real-time vizual dashboard
 streamlit run src/viz/dashboard.py
-
-# Xüsusi port ilə dashboard
 streamlit run src/viz/dashboard.py --server.port 8502
 ```
 
 ## 🚀 Üstünlüklər
 
-- **Real-time Çoxprotokollu İşləmə**: 4 protokolun eyni anda monitorinqi
+- **İkiqat Struktur**: Sadə öyrənmə + Tam enterprise versiya
+- **Real-time Çoxprotokollu İşləmə**: 5+ protokolun eyni anda monitorinqi
 - **Paralel Analiz**: ThreadPool ilə yüksək performans
 - **Enterprise Səviyyəli Loglama**: JSON formatlı strukturlaşdırılmış loglar
 - **Real-time Dashboard**: Canlı vizuallaşdırma və monitoring
@@ -150,7 +166,7 @@ streamlit run src/viz/dashboard.py --server.port 8502
 - **Yaddaş İstifadəsi**: 200MB-dan az (optimized threading)
 - **Aşkarlama Dəqiqliyi**: 98%+ dəqiqlik çoxalqoritmik yanaşma ilə
 - **Gecikmə**: 50ms-dən az real-time emal
-- **Eyni Zamanda Protokollar**: 4 protokolun paralel işləməsi
+- **Eyni Zamanda Protokollar**: 5+ protokolun paralel işləməsi
 
 ## 🔮 Gələcək İnkişaf Planı
 
