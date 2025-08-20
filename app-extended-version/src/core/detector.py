@@ -80,19 +80,14 @@ class C2Detector:
         sys.exit(0)
 
     def setup_environment(self) -> bool:
-        """
-        Setup monitoring environment with validation for all log types
-        
-        Returns:
-            True if setup successful, False otherwise
-        """
+        """Setup monitoring environment with validation for all log types"""
         logger.info("Setting up multi-protocol monitoring environment...")
         
         try:
             analysis_config = self.config.get('analysis', {})
             historical_days = analysis_config.get('historical_days', 1)
             
-            # Load all enabled log types
+            # Yalnız aktiv olan log tiplərini yüklə
             enabled_logs = self._get_enabled_log_types()
             logger.info(f"Enabled log types: {enabled_logs}")
             
@@ -100,8 +95,15 @@ class C2Detector:
                 logger.error("No log types enabled in configuration")
                 return False
             
-            # Load historical data for all enabled log types
-            load_results = self.zeek_parser.load_all_logs(days=historical_days)
+            # Load historical data only for enabled log types
+            load_results = {}
+            for log_type in enabled_logs:
+                success = self.zeek_parser.load_log_type(log_type, days=historical_days)
+                load_results[log_type] = success
+                if success:
+                    logger.info(f"Successfully loaded {log_type} logs")
+                else:
+                    logger.warning(f"Failed to load {log_type} logs")
             
             successful_loads = [log_type for log_type, success in load_results.items() if success]
             logger.info(f"Successfully loaded logs: {successful_loads}")
@@ -150,6 +152,13 @@ class C2Detector:
         for log_type in ['dns', 'http', 'conn', 'ssl']:
             if analysis_config.get(f'enable_{log_type}_analysis', False):
                 enabled_logs.append(log_type)
+        
+        # Əgər heç bir protokol aktiv deyilsə, default olaraq hamısını aktiv et
+        if not enabled_logs:
+            enabled_logs = ['dns', 'http', 'conn', 'ssl']
+            # Config-i də yenilə
+            for log_type in enabled_logs:
+                self.config['analysis'][f'enable_{log_type}_analysis'] = True
         
         return enabled_logs
 
@@ -524,21 +533,22 @@ class C2Detector:
 
     def run_realtime_monitoring(self):
         """Professional real-time multi-protocol monitoring"""
-        logger.info("Starting professional real-time multi-protocol monitoring...")
+        enabled_logs = self._get_enabled_log_types()
+        
+        logger.info(f"Starting professional real-time monitoring for: {enabled_logs}")
         
         print("\n" + "═" * 80)
         print("🚀 PROFESSIONAL C2 BEACON DETECTOR - MULTI-PROTOCOL MONITORING")
         print("═" * 80)
-        print("Monitoring all enabled protocols for advanced C2 beaconing...")
-        print("Enabled protocols:", self._get_enabled_log_types())
+        print(f"Monitoring enabled protocols: {enabled_logs}")
         print("Press Ctrl+C for graceful shutdown")
         print("═" * 80 + "\n")
         
         try:
             # Main monitoring loop
             while self.running:
-                # Tail all enabled log types
-                for log_type in self._get_enabled_log_types():
+                # Yalnız aktiv olan log tiplərini izlə
+                for log_type in enabled_logs:
                     self.zeek_parser.tail_log_type(
                         log_type,
                         self.real_time_callback,
@@ -603,6 +613,8 @@ class C2Detector:
         print(f"Log file: data/logs/c2_detector.log")
         print("═" * 80)
 
+# src/core/detector.py - main() funksiyasında
+
 def main():
     """Professional main entry point with multi-protocol support"""
     parser = argparse.ArgumentParser(
@@ -613,6 +625,7 @@ Examples:
   python -m src.core.detector --test      # Test mode
   python -m src.core.detector --config custom_config.json  # Custom config
   python -m src.core.detector --verbose   # Verbose output
+  python -m src.core.detector --protocol dns  # Monitor only DNS
         """
     )
     
@@ -633,8 +646,17 @@ Examples:
         
         logger.info("Starting Professional C2 Detector with Multi-Protocol Support")
         
+        # Protocol seçimini config-ə əlavə et
+        if args.protocol != 'all':
+            config['analysis'][f'enable_{args.protocol}_analysis'] = True
+            # Digər protokolları söndür
+            for proto in ['dns', 'http', 'conn', 'ssl']:
+                if proto != args.protocol:
+                    config['analysis'][f'enable_{proto}_analysis'] = False
+        
         # Initialize and run detector
         detector = C2Detector(args.config)
+        detector.config = config  # Yenilənmiş config-i təyin et
         
         if detector.setup_environment():
             if args.test:
