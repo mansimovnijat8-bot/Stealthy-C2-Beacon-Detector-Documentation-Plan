@@ -1,312 +1,278 @@
-# 05. Detector Modulu - environment setup
+Mükəmməl! İndi bizim tam sənədləşdirmə strukturumuz var. Gəlin növbəti sənəd olan **05. Detector Modulu - real-time processing** yaradaq:
 
-## 📋 `setup_environment` Metodunun Təyinatı
+# 05. Detector Modulu - real-time processing
 
-`setup_environment` metodu C2 aşkarlama sisteminin işləməsi üçün lazım olan mühiti qurur, tarixi məlumatları yükləyir və baseline analizini həyata keçirir.
+## 📋 `real_time_dns_callback` Metodunun Təyinatı
+
+`real_time_dns_callback` metodu Zeek-dən gələn real-time DNS log girişlərini emal edən əsas funksiyadır. Bu metod hər yeni DNS sorğusu üçün çağırılır və ani təhdid aşkarlaması həyata keçirir.
 
 ## 🏗️ Metod İmzası
 
 ```python
-def setup_environment(self) -> bool:
+def real_time_dns_callback(self, dns_entry: Dict):
 ```
 
-**Parametrlər:** Heç bir parametr qəbul etmir
+**Parametrlər:**
+- `dns_entry` (Dict): Zeek-dən gələn emal edilmiş DNS girişi
 
-**Qaytarır:** `bool` - Qurulumun uğurlu olub-olmadığını göstərir
+**Qaytarır:** `None` - Nəticələr birbaşa emal olunur
 
 ## 🔧 Metodun Daxili İşləməsi
 
-### 1. Mühit Qurulumunun Başladılması
+### 1. Giriş Məlumatlarının Çıxarılması
 
 ```python
-logger.info("Setting up professional monitoring environment...")
+source_ip = dns_entry.get('id.orig_h', 'unknown')
+query = dns_entry.get('query', '')
+qtype = dns_entry.get('qtype_name', '')
 ```
 
-**Funksiya:** Qurulum prosesinin başladığını loglayır
+**Çıxarılan Məlumatlar:**
+- `source_ip`: Sorğunun mənbə IP ünvanı
+- `query`: DNS sorğu adı (domain)
+- `qtype`: DNS sorğu növü (A, AAAA, TXT, və s.)
 
-### 2. Analiz Konfiqurasiyasının Alınması
+### 2. Ani Təhdid Aşkarlaması
 
 ```python
-analysis_config = self.config.get('analysis', {})
-historical_days = analysis_config.get('historical_days', 1)
+immediate_alerts = self._check_immediate_threats(dns_entry)
+if immediate_alerts:
+    for alert in immediate_alerts:
+        self.raise_alert(alert)
 ```
 
-**Konfiqurasiya Parametrləri:**
-- `analysis_window_minutes`: Real-time analiz pəncərəsi (default: 60)
-- `real_time_interval`: Dövri analiz intervalı (default: 30)
-- `historical_days`: Tarixi məlumatların neçə günlük oxunacağı (default: 1)
+**Funksiya:** Əlavə analiz gözləmədən ani təhdidləri aşkar edir
 
-### 3. Tarixi Məlumatların Oxunması
+### 3. Performans Optimizasiyası ilə Loglama
 
 ```python
-if not self.zeek_parser.read_historical(days=historical_days):
-    logger.error("Failed to read historical DNS data")
-    return False
+if len(query) > 70:
+    logger.debug(f"Long query: {source_ip} -> {query[:50]}... ({qtype})")
+else:
+    logger.debug(f"Query: {source_ip} -> {query} ({qtype})")
 ```
 
-**Funksiya:** Zeek loglarından tarixi DNS məlumatlarını oxuyur
+**Loglama Strategiyası:**
+- Uzun sorğular qısaldılır
+- Normal sorğular tam göstərilir
+- Debug səviyyəli loglama
 
-**Parametr:** `days` - Neçə günlük məlumat oxunacağı
-
-### 4. Boş Məlumat Yoxlaması
+### 4. Xəta Əlaqələndirmə
 
 ```python
-if self.zeek_parser.df.empty:
-    logger.warning("No historical DNS data found")
-    return True
+except Exception as e:
+    logger.error(f"Error in real-time processing: {e}")
 ```
 
-**Funksiya:** Əgər heç bir məlumat tapılmasa, xəbərdarlıq verir lakin True qaytarır
+**Funksiya:** Real-time emalda baş verən xətaları idarə edir
 
-### 5. Baseline Analizinın Həyata Keçirilməsi
+## 🎯 Ani Təhdid Aşkarlama
+
+### `_check_immediate_threats` Metodu
 
 ```python
-self.dns_analyzer.process_dns_data(self.zeek_parser)
+def _check_immediate_threats(self, dns_entry: Dict) -> List[Dict]:
+    alerts = []
+    source_ip = dns_entry.get('id.orig_h')
+    query = dns_entry.get('query', '')
+    qtype = dns_entry.get('qtype_name', '')
+    
+    # Ekstrem uzunluq aşkarlaması
+    if len(query) > 100:
+        alerts.append({
+            'timestamp': datetime.now(),
+            'alert_type': 'EXTREME_LENGTH_DOMAIN',
+            'severity': 'HIGH',
+            'severity_score': 95,
+            'source_ip': source_ip,
+            'domain': query,
+            'length': len(query),
+            'description': f'Extreme domain length: {len(query)} characters'
+        })
+    
+    # Şübhəli sorğu növləri
+    suspicious_types = ['TXT', 'NULL', 'ANY', 'AXFR']
+    if qtype in suspicious_types:
+        alerts.append({
+            'timestamp': datetime.now(),
+            'alert_type': 'SUSPICIOUS_QUERY_TYPE',
+            'severity': 'MEDIUM',
+            'severity_score': 75,
+            'source_ip': source_ip,
+            'query_type': qtype,
+            'domain': query,
+            'description': f'Suspicious DNS type: {qtype}'
+        })
+            
+    return alerts
 ```
 
-**Funksiya:** DNS məlumatlarını emal edərək baseline statistikaları hesablayır
+## 📊 Real-time İşləmə Xüsusiyyətləri
 
-### 6. Statistik Məlumatların Loglanması
+### Performans Optimizasiyaları
 
 ```python
-stats = self.zeek_parser.get_stats()
-logger.info(f"Baseline established: {stats['total_records']} records, "
-           f"{stats['unique_sources']} unique sources")
+# Optimized logging - uzun stringlərin qısaldılması
+# Exception handling - prosesin davam etməsi
+# Minimal yaddaş istifadəsi - yerli dəyişənlər
 ```
 
-**Loglanan Statistikalar:**
-- Ümumi qeyd sayı
-- Unikal mənbə sayı
-- Məlumatların vaxt aralığı
+### Emal Sırası
 
-### 7. Uğur Mesajı
-
-```python
-return True
-```
-
-**Funksiya:** Qurulumun uğurla başa çatdığını göstərir
+1. **Giriş validasiyası** - Məlumatların çıxarılması
+2. **Ani təhdid aşkarlama** - Əlavə analiz gözləmədən
+3. **Loglama** - Debug məlumatlarının qeydə alınması
+4. **Xəta idarəetmə** - prosesin davam etdirilməsi
 
 ## ⚠️ Xəta Əlaqələndirmə
 
 Metod aşağıdakı xətaları idarə edir:
 
-1. **Konfiqurasiya xətaları** - Default dəyərlər istifadə edir
-2. **Fayl oxuma xətaları** - Xəta loglanır və False qaytarılır
-3. **Boş məlumat** - Xəbərdarlıq verilir lakin True qaytarılır
-4. **Data emal xətaları** - Xəta loglanır və False qaytarılır
+1. **Çatışmayan məlumat** - `get()` ilə default dəyərlər
+2. **Format xətaları** - Exception handling ilə
+3. **Null dəyərlər** - Boş string defaultları
 
 ## 🎯 İstifadə Nümunələri
 
 ### Əsas İstifadə
 ```python
-detector = C2Detector("config.json")
+# Callback funksiyasının təyin edilməsi
+def custom_callback(dns_entry):
+    print(f"Yeni DNS sorğusu: {dns_entry.get('query')}")
 
-if detector.setup_environment():
-    print("Mühit uğurla quruldu")
-    print(f"Yüklənən qeydlər: {len(detector.zeek_parser.df)}")
-else:
-    print("Mühit qurulumu uğursuz oldu")
+# Real-time monitorinqin başladılması
+parser.tail_new_entries(custom_callback)
 ```
 
-### Ətraflı Qurulum
+### Ətraflı Real-time Analiz
 ```python
-def comprehensive_setup(detector, max_retries=3):
-    """Yenidən cəhd ilə tam mühit qurulumu"""
-    for attempt in range(max_retries):
-        try:
-            success = detector.setup_environment()
-            if success:
-                # Əlavə validasiyalar
-                if validate_environment(detector):
-                    return True
-        except Exception as e:
-            print(f"Qurulum cəhdi {attempt + 1} uğursuz: {e}")
-            time.sleep(5)
+def advanced_real_time_analysis(detector):
+    """Real-time analiz üçün xüsusi callback"""
+    def analysis_callback(dns_entry):
+        # Ani təhdid aşkarlama
+        immediate_threats = detector._check_immediate_threats(dns_entry)
+        for threat in immediate_threats:
+            detector.raise_alert(threat)
+        
+        # Əlavə analiz məntiqi
+        perform_additional_analysis(dns_entry)
     
-    return False
+    return analysis_callback
 
-def validate_environment(detector):
-    """Mühitin düzgün qurulduğunu yoxla"""
-    if detector.zeek_parser.df.empty:
-        print("Xəbərdarlıq: Boş məlumat dəsti")
-        return True  # Hələ də uğurlu sayılır
-    
-    # Data keyfiyyətini yoxla
-    stats = detector.zeek_parser.get_stats()
-    if stats['unique_sources'] == 0:
-        print("Xəta: Heç bir mənbə tapılmadı")
-        return False
-    
-    return True
+# Xüsusi callback ilə işə salma
+custom_callback = advanced_real_time_analysis(detector)
+parser.tail_new_entries(custom_callback)
 ```
 
-### Real-time Monitorinq Üçün
+### Çoxmiqyaslı Real-time Emal
 ```python
-def initialize_detector_with_fallback(config_path):
-    """Əsas və ehtiyat konfiqurasiya ilə işə salma"""
-    try:
-        # Əsas konfiqurasiya ilə cəhd et
-        detector = C2Detector(config_path)
-        if detector.setup_environment():
-            return detector
-    except Exception as e:
-        print(f"Əsas konfiqurasiya uğursuz: {e}")
+def scalable_real_time_processing(detector, batch_size=1000):
+    """Böyük miqyaslı real-time emal"""
+    batch = []
     
-    try:
-        # Ehtiyat konfiqurasiya ilə cəhd et
-        detector = C2Detector("default_config.json")
-        if detector.setup_environment():
-            return detector
-    except Exception as e:
-        print(f"Ehtiyat konfiqurasiya uğursuz: {e}")
+    def batch_callback(dns_entry):
+        nonlocal batch
+        batch.append(dns_entry)
+        
+        if len(batch) >= batch_size:
+            process_batch(batch)
+            batch = []
     
-    return None
+    def process_batch(batch):
+        """Toplu emal funksiyası"""
+        for entry in batch:
+            immediate_threats = detector._check_immediate_threats(entry)
+            for threat in immediate_threats:
+                detector.raise_alert(threat)
+    
+    return batch_callback
 ```
 
-## 🔧 Konfiqurasiya Seçimləri
+## 🚀 Performans Optimizasiyaları
 
-### Tarixi Məlumat Konfiqurasiyası
+### 1. Yaddaş İdarəetmə
+```python
+# Yerli dəyişənlər - aşağı yaddaş footprinti
+# Batch processing - böyük miqyaslı emal
+# String optimizasiyası - uzun sorğuların qısaldılması
+```
+
+### 2. CPU Optimizasiyası
+```python
+# Səmərəli data strukturları
+# Minimal hesablama
+# Asinxron emal imkanı
+```
+
+### 3. Şəbəkə Optimizasiyası
+```python
+# Lokal emal - şəbəkə trafiksiz
+# Sıxışdırılmış loglama
+# Adaptive sampling
+```
+
+## 🔧 Tənzimlənə Bilən Parametrlər
+
+### Real-time Konfiqurasiya
 ```json
 {
-  "analysis": {
-    "historical_days": 7,
-    "analysis_window_minutes": 60,
-    "real_time_interval": 30
+  "real_time_processing": {
+    "max_query_length_log": 70,
+    "immediate_thresholds": {
+      "max_domain_length": 100,
+      "suspicious_types": ["TXT", "NULL", "ANY", "AXFR"]
+    },
+    "performance": {
+      "batch_size": 1000,
+      "sleep_interval": 0.001
+    }
   }
 }
 ```
 
-### Fərdiləşdirilmiş Qurulum
+### Dinamik Tənzimləmə
 ```python
-def custom_environment_setup(detector, options):
-    """Fərdi seçimlərlə mühit qurulumu"""
-    # Konfiqurasiyanı dinamik olaraq dəyiş
-    if 'historical_days' in options:
-        detector.config['analysis']['historical_days'] = options['historical_days']
-    
-    if 'log_dir' in options:
-        detector.config['zeek']['log_dir'] = options['log_dir']
-    
-    # Qurulumu işə sal
-    return detector.setup_environment()
-
-# Fərdi seçimlərlə işə sal
-options = {
-    'historical_days': 3,
-    'log_dir': '/var/log/zeek/current'
-}
-success = custom_environment_setup(detector, options)
-```
-
-## 📊 Qurulum Statistikaları
-
-### Performans Metrikaları
-```python
-def measure_setup_performance(detector):
-    """Qurulum performansının ölçülməsi"""
-    start_time = time.time()
-    
-    success = detector.setup_environment()
-    elapsed_time = time.time() - start_time
-    
-    stats = {
-        'success': success,
-        'elapsed_time': elapsed_time,
-        'data_size': len(detector.zeek_parser.df),
-        'memory_usage': get_memory_usage()
-    }
-    
-    return stats
-
-def get_memory_usage():
-    """Yaddaş istifadəsinin ölçülməsi"""
-    import psutil
-    process = psutil.Process()
-    return process.memory_info().rss / 1024 / 1024  # MB
-```
-
-### Qurulum Hesabatı
-```python
-def generate_setup_report(detector):
-    """Ətraflı qurulum hesabatı"""
-    report = {
-        'timestamp': datetime.now(),
-        'config_file': detector.config_path,
-        'environment_status': 'success' if detector.setup_environment() else 'failed',
-        'zeek_status': 'available' if detector.zeek_parser._validate_log_file() else 'unavailable'
-    }
-    
-    if report['environment_status'] == 'success':
-        stats = detector.zeek_parser.get_stats()
-        report.update({
-            'data_metrics': stats,
-            'analysis_ready': True,
-            'baseline_established': True
-        })
-    else:
-        report.update({
-            'data_metrics': {},
-            'analysis_ready': False,
-            'baseline_established': False,
-            'error_message': 'Environment setup failed'
-        })
-    
-    return report
+def adjust_real_time_parameters(detector, network_load):
+    """Şəbəkə yükünə görə real-time parametrləri tənzimlə"""
+    if network_load > 80:  # Yüksək yük
+        detector.config['real_time_processing']['batch_size'] = 500
+        detector.config['real_time_processing']['sleep_interval'] = 0.005
+    else:  # Normal yük
+        detector.config['real_time_processing']['batch_size'] = 1000
+        detector.config['real_time_processing']['sleep_interval'] = 0.001
 ```
 
 ## 💡 Əlavə Qeydlər
 
-### 1. Validation Funksiyaları
+### 1. Quality of Service (QoS)
 ```python
-def validate_zeek_environment(parser):
-    """Zeek mühitinin doğrulanması"""
-    checks = {
-        'log_file_exists': parser._validate_log_file(),
-        'log_directory_exists': parser.zeek_log_dir.exists(),
-        'has_read_permission': os.access(str(parser.dns_log_path), os.R_OK)
-    }
-    
-    return all(checks.values()), checks
+def implement_qos_strategy(detector):
+    """Real-time emal üçün QoS strategiyası"""
+    # Prioritizasiya: Ani təhdidlər > Loglama > Statistikalar
+    # Adaptive rate limiting
+    # Resource-based throttling
 ```
 
-### 2. Fallback Strategiyası
+### 2. Machine Learning İnteqrasiyası
 ```python
-def setup_with_fallback_strategy(detector):
-    """Çoxmərhəli fallback strategiyası"""
-    # 1. Əsas konfiqurasiya ilə cəhd
-    if detector.setup_environment():
-        return True
-    
-    # 2. Default log qovluğu ilə cəhd
-    detector.config['zeek']['log_dir'] = '/opt/zeek/logs/current'
-    if detector.setup_environment():
-        return True
-    
-    # 3. Yalnız real-time modda işə sal
-    print("Xəbərdarlıq: Yalnız real-time modda işləyir")
-    return True  # Hələ də uğurlu say
+def ml_enhanced_processing(dns_entry, ml_model):
+    """ML əsaslı real-time emal"""
+    # Real-time feature extraction
+    # ML model inference
+    # Anomaly scoring
 ```
 
-### 3. Resource Monitoring
+### 3. Distributed Processing
 ```python
-def monitor_setup_resources():
-    """Qurulum zamanı resource istifadəsinin monitorinqi"""
-    resource_stats = {
-        'cpu_percent': psutil.cpu_percent(),
-        'memory_usage': psutil.virtual_memory().percent,
-        'disk_usage': psutil.disk_usage('/').percent
-    }
-    
-    if any(usage > 90 for usage in resource_stats.values()):
-        print("Xəbərdarlıq: Yüksək resource istifadəsi")
-        return False
-    
-    return True
+def distributed_real_time_processing(dns_entry, message_queue):
+    """Paylanmış real-time emal"""
+    # Message queue-ya göndərmə
+    # Worker processes ilə emal
+    # Nəticələrin birləşdirilməsi
 ```
 
 ---
 
-**Növbəti:** [05. Detector Modulu - real-time processing](/doc/core/05_detector/03_real_time_processing.md)
+**Növbəti:** [05. Detector Modulu - alert management](/doc/core/05_detector/03_alert_management.md)
 
-Bu sənəd `setup_environment` metodunun detallı işləmə prinsipini izah edir. Növbəti sənəddə real-time emal metoduna keçəcəyik.
+Bu sənəd `real_time_dns_callback` metodunun detallı işləmə prinsipini izah edir. Növbəti sənəddə xəbərdarlıq idarəetmə sisteminə keçəcəyik.
