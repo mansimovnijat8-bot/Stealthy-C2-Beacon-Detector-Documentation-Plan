@@ -272,6 +272,6 @@ def _validate_timestamps(self):
 
 ---
 
-**Növbəti:** [04. DNS Analyzer Modulu - DNSAnalyzer Class](core/04_dns_analyzer/01_DNSAnalyzer_Class.md)
+**Növbəti:** [04. DNS Analyzer Modulu - DNSAnalyzer Class](/doc/core/04_dns_analyzer/01_DNSAnalyzer_Class.md)
 
 Bu sənəd validasiya metodlarının detallı işləmə prinsipini izah edir. Növbəti sənəddə DNS analizator sinfinin təyinatına keçəcəyik.
