@@ -1,5 +1,3 @@
-Mükəmməl! İndi bizim tam sənədləşdirmə strukturumuz var. Gəlin növbəti sənəd olan **05. Detector Modulu - real-time processing** yaradaq:
-
 # 05. Detector Modulu - real-time processing
 
 ## 📋 `real_time_dns_callback` Metodunun Təyinatı
