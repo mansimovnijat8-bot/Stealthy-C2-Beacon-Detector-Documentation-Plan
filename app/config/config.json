@@ -1,0 +1,34 @@
+{
+  "zeek": {
+    "log_dir": "/opt/zeek/logs/current",
+    "log_types": ["dns"],
+    "monitor_interfaces": ["eth0"]
+  },
+  "analysis": {
+    "window_minutes": 60,
+    "real_time_interval": 30,
+    "historical_days": 7
+  },
+  "thresholds": {
+    "dns_queries_per_minute": 150,
+    "unusual_domain_length": 60,
+    "entropy_threshold": 4.2,
+    "beacon_interval_std": 2.0,
+    "unusual_type_count": 10
+  },
+  "alerting": {
+    "log_file": "data/alerts/c2_alerts.json",
+    "max_alerts_per_hour": 1000,
+    "severity_levels": {
+      "HIGH": 90,
+      "MEDIUM": 70,
+      "LOW": 50
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "data/logs/c2_detector.log",
+    "max_size_mb": 100,
+    "backup_count": 5
+  }
+}
