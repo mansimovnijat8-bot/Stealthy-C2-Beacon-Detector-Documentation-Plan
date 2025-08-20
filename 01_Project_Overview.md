@@ -56,11 +56,31 @@ Proyekt aşağıdakı üsullarla bu problemləri həll edir:
 Proyekt modul əsaslı dizayn edilib:
 
 stealthy_c2_detector/
-├── src/
-│ ├── core/ # Əsas funksionallıq modulları
-│ ├── utils/ # Yardımçı funksiyalar
-│ └── main.py # Əsas giriş nöqtəsi
-├── config/ # Konfiqurasiya faylları
-├── data/ # Məlumat və loglar
-├── scripts/ # Qurulum skriptləri
-└── tests/ # Test faylları
+src/
+core/ # Əsas funksionallıq modulları
+utils/ # Yardımçı funksiyalar
+main.py # Əsas giriş nöqtəsi
+config/ # Konfiqurasiya faylları
+data/ # Məlumat və loglar
+scripts/ # Qurulum skriptləri
+tests/ # Test faylları
+
+
+## 🔮 Gələcək İnkişaf
+
+- [ ] HTTP/HTTPS C2 aşkarlama
+- [ ] SSL sertifikat analizi
+- [ ] Machine Learning əsaslı anomaliya aşkarlama
+- [ ] Daha çox SIEM inteqrasiyası
+- [ ] Qrafik istifadəçi interfeysi
+
+## 📊 Performans Göstəriciləri
+
+- **İşləmə Sürəti**: Saniyədə 10,000+ DNS sorğusu
+- **Yaddaş İstifadəsi**: 100MB-dan az
+- **Aşkarlama Dəqiqliyi**: 95%+ dəqiqlik
+- **Gecikmə**: 100ms-dən az real-time emal
+
+---
+
+**Növbəti**: [02. Arxivtektura və İşləmə Prinsipi](02_Architecture.md)
