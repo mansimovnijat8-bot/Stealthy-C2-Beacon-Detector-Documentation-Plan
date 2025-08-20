@@ -6,38 +6,88 @@ Proyekt modul əsaslı dizayn edilib, hər modul müəyyən funksionallığı h�
 
 ```mermaid
 flowchart TD
-    A[Şəbəkə Trafiki] --> B[Zeek Sensor]
-    B --> C[DNS.log Faylı]
+    A[Çoxprotokollu Şəbəkə Trafiki] --> B[Zeek Sensor]
     
-    subgraph P[Log Parser Modulu]
-        D[Real-time Oxuma]
-        E[Tarixi Məlumat Oxuma]
+    subgraph Z[Zeek Log Generation]
+        C[DNS.log]
+        D[HTTP.log]
+        E[CONN.log]
+        F[SSL.log]
     end
     
-    C --> D
-    C --> E
+    B --> Z
     
-    subgraph A[Analiz Modulu]
-        F[Entropiya Analizi]
-        G[Həcm Analizi]
-        H[Vaxt Analizi]
-        I[Protokol Analizi]
+    subgraph P[Çoxprotokollu Log Parser]
+        G[Real-time Tailer]
+        H[Tarixi Məlumat Oxuyucu]
+        I[Dinamik Kolon Aşkarlama]
     end
     
-    D --> A
-    E --> A
+    C --> P
+    D --> P
+    E --> P
+    F --> P
     
-    subgraph N[Nəticə Emalı]
-        J[Xəbərdarlıq Yaradılması]
-        K[Loglama]
-        L[Hesabatlamа]
+    subgraph AM[Çoxprotokollu Analiz Modulu]
+        subgraph DNSA[DNS Analizatoru]
+            J[Entropiya Analizi]
+            K[DNS Həcm Analizi]
+            L[Beaconing Aşkarlama]
+        end
+        
+        subgraph HTTPA[HTTP Analizatoru]
+            M[User-Agent Analizi]
+            N[URI Pattern Aşkarlama]
+            O[HTTP Method Analizi]
+        end
+        
+        subgraph CONNA[CONN Analizatoru]
+            P[Port Analizi]
+            Q[Bağlantı Həcmi]
+            R[Duration Analizi]
+        end
+        
+        subgraph SSLA[SSL Analizatoru]
+            S[Sertifikat Validasiya]
+            T[SSL Version Analizi]
+            U[Cipher Suite Analizi]
+        end
     end
     
-    A --> N
+    P --> AM
     
-    N --> M[SOC Operatoru]
-    N --> O[Cortex XSIAM]
-    N --> Q[Yerli Fayl Sistemi]
+    subgraph PE[Paralel Nəticə Emalı]
+        V[Alert Deduplication]
+        W[Rate Limiting]
+        X[Severity Scoring]
+    end
+    
+    AM --> PE
+    
+    subgraph O[Çıxış İnterfeysləri]
+        Y[Real-time Dashboard]
+        Z1[JSON Alert Faylları]
+        AA[SOC Operatoru]
+        AB[SIEM Sistemləri]
+        AC[Email/Slack Bildirişləri]
+    end
+    
+    PE --> O
+    
+    subgraph M[Monitorinq & İdarəetmə]
+        AD[Performance Monitoring]
+        AE[Resource Management]
+        AF[Auto-scaling]
+    end
+    
+    O --> M
+    P --> M
+    
+    %% Feedback loops
+    M -.->|Konfiq Optimizasiyası| P
+    M -.->|Alert Tuning| PE
+    O -.->|Real-time Feedback| AM
+
 ```
 
 ## 🔧 Əsas Komponentlər
