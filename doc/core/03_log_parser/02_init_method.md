@@ -211,6 +211,6 @@ print("Interfaces:", parser.monitor_interfaces)
 
 ---
 
-**Növbəti:** [03. Log Parser Modulu - read_historical method](core/03_log_parser/03_read_historical_method.md)
+**Növbəti:** [03. Log Parser Modulu - read_historical method](/doc/core/03_log_parser/03_read_historical_method.md)
 
 Bu sənəd `__init__` metodunun detallı işləmə prinsipini izah edir. Növbəti sənəddə tarixi məlumatların oxunması metoduna keçəcəyik.
