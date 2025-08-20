@@ -257,6 +257,6 @@ def monitoring_callback(entry):
 
 ---
 
-**Növbəti:** [03. Log Parser Modulu - get_stats method](core/03_log_parser/05_get_stats_method.md)
+**Növbəti:** [03. Log Parser Modulu - get_stats method](/doc/core/03_log_parser/05_get_stats_method.md)
 
 Bu sənəd `tail_new_entries` metodunun detallı işləmə prinsipini izah edir. Növbəti sənəddə statistik məlumatların alınması metoduna keçəcəyik.
