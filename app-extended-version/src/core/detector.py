@@ -647,11 +647,11 @@ def main():
         description='Professional C2 Beacon Detection System with Multi-Protocol Support',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  python -m src.core.detector --test      # Test mode
-  python -m src.core.detector --config custom_config.json  # Custom config
-  python -m src.core.detector --verbose   # Verbose output
-  python -m src.core.detector --protocol dns  # Monitor only DNS
+                Examples:
+                  python -m src.core.detector --test      # Test mode
+                  python -m src.core.detector --config custom_config.json  # Custom config
+                  python -m src.core.detector --verbose   # Verbose output
+                  python -m src.core.detector --protocol dns  # Monitor only DNS
         """
     )
     
