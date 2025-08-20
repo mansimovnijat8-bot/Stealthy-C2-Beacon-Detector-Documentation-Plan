@@ -22,6 +22,8 @@ from .dns_analyzer import DNSAnalyzer
 from .http_analyzer import HTTPAnalyzer
 from .conn_analyzer import ConnAnalyzer
 from .ssl_analyzer import SSLAnalyzer
+from .ssh_analyzer import SSHAnalyzer
+
 from ..utils.logger import setup_logging
 from ..utils.helpers import load_config
 
@@ -61,7 +63,8 @@ class C2Detector:
             'dns': DNSAnalyzer(self.config),
             'http': HTTPAnalyzer(self.config),
             'conn': ConnAnalyzer(self.config),
-            'ssl': SSLAnalyzer(self.config)
+            'ssl': SSLAnalyzer(self.config),
+            'ssh': SSHAnalyzer(self.config)
         }
         
         # Thread pool for parallel processing
@@ -199,6 +202,8 @@ class C2Detector:
                     immediate_alerts = self._check_immediate_conn_threats(log_entry)
                 elif log_type == 'ssl':
                     immediate_alerts = self._check_immediate_ssl_threats(log_entry)
+                elif log_type == 'ssh':
+                    immediate_alerts = self._check_immediate_ssh_threats(log_entry)
                 else:
                     immediate_alerts = []
                 
@@ -346,6 +351,27 @@ class C2Detector:
                 'log_type': 'ssl'
             })
             
+        return alerts
+
+    def _check_immediate_ssh_threats(self, ssh_entry: Dict) -> List[Dict]:
+        """Immediate SSH threat detection"""
+        alerts = []
+        client_ip = ssh_entry.get('id.orig_h')
+        auth_success = ssh_entry.get('auth_success', False)
+        client = ssh_entry.get('client', '')
+        
+        # Failed authentication attempts
+        if not auth_success:
+            alerts.append({
+                'timestamp': datetime.now(),
+                'alert_type': 'SSH_FAILED_LOGIN',
+                'severity': 'MEDIUM',
+                'severity_score': 60,
+                'source_ip': client_ip,
+                'client': client,
+                'description': f'SSH failed login attempt'
+            })
+        
         return alerts
 
     def raise_alert(self, alert: Dict):
