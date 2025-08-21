@@ -6,88 +6,102 @@ Proyekt modul əsaslı dizayn edilib, hər modul müəyyən funksionallığı h�
 
 ```mermaid
 flowchart TD
-    A[Çoxprotokollu Şəbəkə Trafiki] --> B[Zeek Sensor]
+    %% Başlanğıc Trafik
+    A[🌐 Çoxprotokollu Şəbəkə Trafiki] --> B[🛰 Zeek Sensor]
     
-    subgraph Z[Zeek Log Generation]
-        C[DNS.log]
-        D[HTTP.log]
-        E[CONN.log]
-        F[SSL.log]
+    %% Zeek Log Generation
+    subgraph Z[📂 Zeek Log Generation]
+        C[📘 DNS.log]
+        D[📗 HTTP.log]
+        E[📙 CONN.log]
+        F[📒 SSL.log]
+        G1[📕 SSH.log]
     end
     
     B --> Z
     
-    subgraph P[Çoxprotokollu Log Parser]
-        G[Real-time Tailer]
-        H[Tarixi Məlumat Oxuyucu]
-        I[Dinamik Kolon Aşkarlama]
+    %% Log Parser
+    subgraph P[🔎 Çoxprotokollu Log Parser]
+        G[📡 Real-time Tailer]
+        H[📜 Tarixi Məlumat Oxuyucu]
+        I[⚙️ Dinamik Kolon Aşkarlama]
     end
     
     C --> P
     D --> P
     E --> P
     F --> P
+    G1 --> P
     
-    subgraph AM[Çoxprotokollu Analiz Modulu]
-        subgraph DNSA[DNS Analizatoru]
+    %% Analiz Modulu
+    subgraph AM[🧠 Çoxprotokollu Analiz Modulu]
+        subgraph DNSA[🔹 DNS Analizatoru]
             J[Entropiya Analizi]
             K[DNS Həcm Analizi]
             L[Beaconing Aşkarlama]
         end
         
-        subgraph HTTPA[HTTP Analizatoru]
+        subgraph HTTPA[🔸 HTTP Analizatoru]
             M[User-Agent Analizi]
             N[URI Pattern Aşkarlama]
             O[HTTP Method Analizi]
         end
         
-        subgraph CONNA[CONN Analizatoru]
-            P[Port Analizi]
+        subgraph CONNA[🔸 CONN Analizatoru]
+            P1[Port Analizi]
             Q[Bağlantı Həcmi]
             R[Duration Analizi]
         end
         
-        subgraph SSLA[SSL Analizatoru]
+        subgraph SSLA[🔸 SSL Analizatoru]
             S[Sertifikat Validasiya]
             T[SSL Version Analizi]
             U[Cipher Suite Analizi]
+        end
+        
+        subgraph SSHA[🔸 SSH Analizatoru]
+            V1[Login Attempts Analizi]
+            V2[Session Duration Analizi]
+            V3[Brute-force Pattern Detection]
         end
     end
     
     P --> AM
     
-    subgraph PE[Paralel Nəticə Emalı]
-        V[Alert Deduplication]
-        W[Rate Limiting]
-        X[Severity Scoring]
+    %% Paralel Nəticə Emalı
+    subgraph PE[⚡ Paralel Nəticə Emalı]
+        W[Alert Deduplication]
+        X[Rate Limiting]
+        Y[Severity Scoring]
     end
     
     AM --> PE
     
-    subgraph O[Çıxış İnterfeysləri]
-        Y[Real-time Dashboard]
-        Z1[JSON Alert Faylları]
-        AA[SOC Operatoru]
-        AB[SIEM Sistemləri]
-        AC[Email/Slack Bildirişləri]
+    %% Çıxış Interfeysləri
+    subgraph O[📤 Çıxış İnterfeysləri]
+        Z1[📊 Real-time Dashboard]
+        Z2[📝 JSON Alert Faylları]
+        AA[👨‍💻 SOC Operatoru]
+        AB[🔗 SIEM Sistemləri]
+        AC[📧 Email/Slack Bildirişləri]
     end
     
     PE --> O
     
-    subgraph M[Monitorinq & İdarəetmə]
-        AD[Performance Monitoring]
-        AE[Resource Management]
-        AF[Auto-scaling]
+    %% Monitorinq & İdarəetmə
+    subgraph M[🛠 Monitorinq & İdarəetmə]
+        AD[📈 Performance Monitoring]
+        AE[🗄 Resource Management]
+        AF[⚙️ Auto-scaling]
     end
     
     O --> M
     P --> M
     
-    %% Feedback loops
+    %% Feedback Loops
     M -.->|Konfiq Optimizasiyası| P
     M -.->|Alert Tuning| PE
     O -.->|Real-time Feedback| AM
-
 ```
 
 ## 🔧 Əsas Komponentlər
