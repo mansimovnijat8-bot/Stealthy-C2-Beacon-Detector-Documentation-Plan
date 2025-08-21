@@ -1,6 +1,6 @@
 {
   "zeek": {
-    "log_dir": "/opt/zeek/logs/current",
+    "log_dir": "/opt/zeek/logs",
     "log_types": ["dns"],
     "monitor_interfaces": ["eth0"]
   },
