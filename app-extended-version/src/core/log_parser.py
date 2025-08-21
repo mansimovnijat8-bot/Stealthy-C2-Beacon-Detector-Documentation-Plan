@@ -61,7 +61,7 @@ class ZeekLogParser:
         self.config = load_config(config_path)
         zeek_config = self.config.get('zeek', {})
         
-        self.zeek_log_dir = Path(zeek_config.get('log_dir', '/opt/zeek/logs/current'))
+        self.zeek_log_dir = Path(zeek_config.get('log_dir', '/opt/zeek/logs'))
         self.monitor_interfaces = zeek_config.get('monitor_interfaces', ['eth0'])
         
         self.available_logs = self._discover_log_files()
