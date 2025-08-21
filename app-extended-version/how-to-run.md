@@ -95,7 +95,7 @@ streamlit run src/viz/dashboard.py --server.port 8502 --server.address 0.0.0.0
 
 ---
 
-### 4. **ZEƏK ƏMƏLİYYATLARI:**
+### 4. **ZEEK ƏMƏLİYYATLARI:**
 
 #### **4.1. Zeek Statusunu Yoxlama**
 ```bash
