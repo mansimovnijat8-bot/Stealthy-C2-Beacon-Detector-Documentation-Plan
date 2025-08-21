@@ -110,10 +110,10 @@ sudo zeekctl restart
 #### **4.3. Zeek Loglarını İzləmə**
 ```bash
 # DNS loglarını izlə
-tail -f /opt/zeek/logs/current/dns.log
+tail -f /opt/zeek/logs/dns.log
 
 # Bütün logları izlə
-tail -f /opt/zeek/logs/current/*.log
+tail -f /opt/zeek/logs/*.log
 ```
 
 ---
